@@ -2,27 +2,18 @@ package ohtu.verkkokauppa;
 
 import java.util.*;
 
-public class Varasto {
-
-    private static Varasto instanssi;
-
-    public static Varasto getInstance() {
-        if (instanssi == null) {
-            instanssi = new Varasto();
-        }
-
-        return instanssi;
-    }
+public class Varasto implements Tuotesailio {
     
-    private Kirjanpito kirjanpito;
+    private Merkkijonolista merkkijonolista;
     private HashMap<Tuote, Integer> saldot;  
     
-    public Varasto() {
-        kirjanpito = Kirjanpito.getInstance();
+    public Varasto(Merkkijonolista merkkijonolista) {
+        this.merkkijonolista = merkkijonolista;
         saldot = new HashMap<Tuote, Integer>();
         alustaTuotteet();
     }
             
+    @Override
     public Tuote haeTuote(int id){
         for (Tuote t : saldot.keySet()) {
             if ( t.getId()==id) return t;
@@ -31,18 +22,21 @@ public class Varasto {
         return null;
     }
 
+    @Override
     public int saldo(int id){
         return saldot.get(haeTuote(id));
     }
     
-    public void otaVarastosta(Tuote t){        
+    @Override
+    public void ota(Tuote t){
         saldot.put(t,  saldo(t.getId())-1 );
-        kirjanpito.lisaaTapahtuma("otettiin varastosta "+t);
+        merkkijonolista.lisaa("otettiin varastosta "+t);
     }
     
-    public void palautaVarastoon(Tuote t){
+    @Override
+    public void palauta(Tuote t){
         saldot.put(t,  saldo(t.getId())+1 );
-        kirjanpito.lisaaTapahtuma("palautettiin varastoon "+t);
+        merkkijonolista.lisaa("palautettiin varastoon "+t);
     }    
     
     private void alustaTuotteet() {
